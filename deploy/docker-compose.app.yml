@@ -1,0 +1,42 @@
+name: founder-ai
+
+# Founder portfolio AI: app + agent only.
+# Reuses the four2labs VM's existing Caddy (TLS) and LiveKit server.
+# Caddy routes founder.four2labs.com -> localhost:8006.
+# The agent is dispatched by name ("founder") so it only handles founder rooms,
+# never the four2labs ones on the same LiveKit server.
+
+services:
+  app:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
+    image: founder-ai:latest
+    command: python server.py
+    restart: unless-stopped
+    network_mode: host
+    env_file: .env
+    environment:
+      PORT: "8006"
+      LIVEKIT_URL: "wss://livekit.four2labs.com"   # browser signaling (shared LiveKit)
+    volumes:
+      - ../credentials:/app/credentials:ro
+      - founder_sessions:/app/sessions
+
+  agent:
+    image: founder-ai:latest
+    command: python mcp-agent.py start
+    restart: unless-stopped
+    network_mode: host
+    depends_on:
+      - app
+    env_file: .env
+    environment:
+      PORT: "8006"
+      LIVEKIT_URL: "ws://localhost:7880"
+      MCP_SERVER_URL: "http://localhost:8006/mcp/sse"
+    volumes:
+      - founder_sessions:/app/sessions
+
+volumes:
+  founder_sessions:
