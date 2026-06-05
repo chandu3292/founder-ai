@@ -38,6 +38,8 @@ os.environ["LIVEKIT_DISABLE_AGENT_GATEWAY"] = "true"
 server = AgentServer(
     load_threshold=float('inf'),
     num_idle_processes=1,
+    port=8082,            # avoid clash with the four2labs agent's health server (8081) on the shared host
+    prometheus_port=9101,
 )
 
 
