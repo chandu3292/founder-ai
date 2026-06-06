@@ -215,7 +215,7 @@ const App: React.FC = () => {
       <div className="stage">
         <header className="top">
           <div className="brand">
-            <Avatar cls="brand-logo brand-avatar" />
+            <img src="/founder-mark.svg" alt="" className="brand-logo" />
             <span className="brand-word">{NAME.split(' ')[0]}<b> Karri</b></span>
           </div>
           <div className="persona">
@@ -301,6 +301,7 @@ const App: React.FC = () => {
 
       {/* ===== About / showcase ===== */}
       <section className="more" id="more">
+        <img src="/research-graph.svg" className="research-bg" alt="" aria-hidden />
         <div className="profile">
           <Avatar cls="profile-photo" />
           <div>
@@ -337,7 +338,7 @@ const App: React.FC = () => {
           </div>
         </div>
         <div className="contact-bottom">
-          <div className="brand"><Avatar cls="brand-logo brand-avatar" /><span className="brand-word">{NAME}</span></div>
+          <div className="brand"><img src="/founder-mark.svg" alt="" className="brand-logo" /><span className="brand-word">{NAME}</span></div>
           <span className="muted">© 2026 {NAME} · AI voice portfolio</span>
         </div>
       </footer>
