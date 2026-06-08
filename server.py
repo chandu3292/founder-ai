@@ -13,6 +13,7 @@ from pydantic import BaseModel
 from dotenv import load_dotenv
 from mcp.server.fastmcp import FastMCP
 from google import genai
+from google.genai import types
 from livekit import api
 
 from agent_personas import list_personas, get_persona, DEFAULT_PERSONA_ID
@@ -38,6 +39,11 @@ SYSTEM = (
     f"portfolio. Be warm, confident and concise. Answer questions about {FOUNDER_SHORT}'s background, research, "
     "projects, skills and experience using the profile below. If a visitor wants to connect or hire him, offer "
     "to book a meeting. If something is not in the profile, say you are not sure and suggest booking a quick call. "
+    "You can check real availability and book meetings yourself using your tools, so never say you cannot access "
+    "the calendar. To book: ask for a preferred date, call check_and_book_appointment to get the real slots, present "
+    "ONLY the starting times, then collect the visitor's name and email and call schedule_appointment. When calling "
+    "schedule_appointment, pass the agreed time as a clear phrase like 'tomorrow 10 AM'. If the visitor "
+    "gives only a time with no date, assume tomorrow. Briefly acknowledge before calling a tool. "
     "Detect the visitor's language and reply in the same language. "
     "Do not use em-dashes (the long dash); use commas or short sentences instead.\n\n"
     f"PROFILE:\n{ABOUT}"
@@ -75,13 +81,13 @@ async def chat(req: ChatMessage):
     if not user_message:
         return {"status": "error", "message": "Empty message"}
     history = chat_histories.setdefault(req.session_id, [])
-    contents = [{"role": "user", "parts": [{"text": SYSTEM + "\n\nRespond to the following conversation."}]},
-                {"role": "model", "parts": [{"text": "Understood. I'm ready to help."}]}]
+    contents = []
     for msg in history[-20:]:
         contents.append({"role": msg["role"], "parts": [{"text": msg["text"]}]})
     contents.append({"role": "user", "parts": [{"text": user_message}]})
     try:
-        response = google_client.models.generate_content(model=CHAT_MODEL, contents=contents)
+        cfg = types.GenerateContentConfig(system_instruction=SYSTEM, tools=CHAT_TOOLS)
+        response = google_client.models.generate_content(model=CHAT_MODEL, contents=contents, config=cfg)
         text = response.text
         history.append({"role": "user", "text": user_message})
         history.append({"role": "model", "text": text})
@@ -118,13 +124,11 @@ async def set_persona(req: SetPersonaRequest):
 
 
 # --- MCP tools (used by the voice agent) ---
-@mcp.tool()
 def query_knowledge_base(question: str, source_name: str = None) -> str:
     """Return Chandra's profile so the agent can answer questions about him."""
     return f"Profile of {FOUNDER_NAME}:\n{ABOUT}"
 
 
-@mcp.tool()
 def get_appointment_info() -> str:
     """Get current meeting configuration like duration."""
     try:
@@ -136,7 +140,6 @@ def get_appointment_info() -> str:
             "They are stored in Google Calendar and managed in India Standard Time (IST).")
 
 
-@mcp.tool()
 def check_and_book_appointment(date_text: str) -> str:
     """Check meeting availability for a given date or day string."""
     manager = get_appointment_manager()
@@ -158,7 +161,6 @@ def check_and_book_appointment(date_text: str) -> str:
     return resp
 
 
-@mcp.tool()
 def schedule_appointment(start_time_iso: str, user_name: str, user_email: str, user_phone: str = None, notes: str = None) -> str:
     """Schedule a meeting with Chandra at the specified start time."""
     manager = get_appointment_manager()
@@ -183,6 +185,15 @@ def schedule_appointment(start_time_iso: str, user_name: str, user_email: str, u
     return f"Failed to schedule: {error}"
 
 
+# Register the tools with MCP (for the voice agent). The same plain callables are
+# also handed to the text chat below, so chat can check slots and book too.
+for _tool in (query_knowledge_base, get_appointment_info, check_and_book_appointment, schedule_appointment):
+    mcp.tool()(_tool)
+
+# Tools exposed to the Gemini text chat (booking, not the profile lookup which is already in-prompt)
+CHAT_TOOLS = [get_appointment_info, check_and_book_appointment, schedule_appointment]
+
+
 mcp_sse = mcp.sse_app()
 app.mount("/mcp", mcp_sse)
 if not os.path.exists("sessions"):
@@ -193,3 +204,4 @@ app.mount("/", StaticFiles(directory="frontend/dist"), name="static")
 if __name__ == "__main__":
     port = int(os.getenv("PORT", 8006))
     uvicorn.run(app, host="0.0.0.0", port=port, log_config=None)
+

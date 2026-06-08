@@ -175,7 +175,7 @@ const App: React.FC = () => {
 
       {/* ---- nav ---- */}
       <header className="nav">
-        <a className="brand" href="#top"><img src="/founder-mark.svg" alt="" /><span>Chandra <b>Karri</b></span></a>
+        <a className="brand" href="#top"><img src="/founder-mark.svg" alt="" /><span>Chandra Sekhar <b>Karri</b></span></a>
         <nav className="nav-links">
           <a href="#about">About</a><a href="#work">Work</a><a href="#path">Experience</a><a href="#contact">Contact</a>
         </nav>

@@ -1,10 +1,10 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" fill="none">
+﻿<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" fill="none">
   <defs>
     <linearGradient id="rg" x1="0" y1="0" x2="640" y2="360" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#ffd27a"/><stop offset="1" stop-color="#df7e2a"/>
+      <stop stop-color="#6ee7b7"/><stop offset="1" stop-color="#059669"/>
     </linearGradient>
     <radialGradient id="rn" cx="0.5" cy="0.5" r="0.5">
-      <stop stop-color="#ffd27a"/><stop offset="1" stop-color="#f6a51f"/>
+      <stop stop-color="#6ee7b7"/><stop offset="1" stop-color="#10b981"/>
     </radialGradient>
   </defs>
   <g stroke="url(#rg)" stroke-width="1.1" opacity="0.5">
@@ -15,7 +15,8 @@
     <circle cx="330" cy="150" r="10"/><circle cx="470" cy="90" r="6"/><circle cx="560" cy="200" r="7"/>
     <circle cx="470" cy="270" r="6"/><circle cx="300" cy="300" r="8"/>
   </g>
-  <g fill="#df7e2a" opacity="0.85">
+  <g fill="#059669" opacity="0.85">
     <circle cx="210" cy="60" r="3"/><circle cx="330" cy="150" r="3.5"/><circle cx="300" cy="300" r="3"/>
   </g>
 </svg>
+
