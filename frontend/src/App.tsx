@@ -1,8 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import {
-  Loader2, Mic, PhoneOff, Send, Trash2, X, ArrowRight, Sparkles,
-  FlaskConical, Cpu, Code2, Award, Mail, Phone, Github, MapPin, GraduationCap, BookOpen,
-} from 'lucide-react';
+import { Loader2, Mic, PhoneOff, Send, Trash2, X, ArrowUpRight, Sparkles } from 'lucide-react';
 import { Room, createLocalAudioTrack, RoomEvent, Track } from 'livekit-client';
 import './index.css';
 
@@ -10,25 +7,18 @@ interface Persona { id: string; name: string; language: string; description: str
 interface Caption { id: string; role: 'you' | 'agent'; text: string; final: boolean; }
 
 const NAME = 'Chandra Sekhar Karri';
-const ROLE = 'AI Engineer & Researcher';
 const SUGGESTIONS = ['Who is Chandra and what does he do?', 'Tell me about his research', 'What has he built?', 'Book a meeting with him'];
 
-const FACTS = [
-  { k: '8.98', v: 'CGPA · B.Tech IT' },
-  { k: '1', v: 'Published paper' },
-  { k: '4+', v: 'Shipped projects' },
-  { k: '300+', v: 'Students taught' },
-];
 const PROJECTS = [
-  { Icon: FlaskConical, tag: 'Research', title: 'NoveltyNet', body: 'Multi-dimensional novelty detection using SBERT, HDBSCAN and citation-graph reasoning across a 50K-plus paper dataset.' },
-  { Icon: Cpu, tag: 'Voice AI', title: 'Multilingual Voice Agent', body: 'Real-time LiveKit agent (English, Telugu, Tamil) with sub-second latency, RAG Q&A and Google Calendar booking.' },
-  { Icon: Code2, tag: 'RAG', title: 'DocQuery', body: 'Document intelligence over scanned files: hybrid OCR plus Sentence-Transformer retrieval, 41 percent better relevance.' },
-  { Icon: Award, tag: 'Optimisation', title: 'Timetable Generator', body: 'Conflict-free academic scheduling with genetic algorithms, 92 percent faster, on Django and PostgreSQL.' },
+  { no: '01', tag: 'Research', title: 'NoveltyNet', body: 'A multi-dimensional novelty-detection system using SBERT embeddings, HDBSCAN clustering and citation-graph reasoning across a 50K-plus paper dataset.' },
+  { no: '02', tag: 'Voice AI', title: 'Multilingual Voice Agent', body: 'A real-time LiveKit agent in English, Telugu and Tamil with sub-second latency, PDF-based RAG Q&A and Google Calendar booking.' },
+  { no: '03', tag: 'RAG', title: 'DocQuery', body: 'Document intelligence over scanned files with a hybrid OCR pipeline and Sentence-Transformer retrieval, 41 percent better relevance.' },
+  { no: '04', tag: 'Optimisation', title: 'Timetable Generator', body: 'Conflict-free academic scheduling with genetic algorithms, 92 percent faster, built on Django and PostgreSQL.' },
 ];
 const EXPERIENCE = [
-  { when: '2025 — now', role: 'Full Stack Developer Intern', org: 'Coastal Seven Consulting, Hyderabad', body: 'GraphQL APIs (Strawberry + FastAPI), Google OAuth and Drive integration, automated podcast publishing that cut manual work 95 percent.' },
-  { when: '2023 — 2025', role: 'Research Assistant', org: 'Dept. of IT, ANITS', body: 'Built NoveltyNet and RAG document pipelines; improved minority-class F1 by 15 percent; taught ML/DL labs to 150-plus students.' },
-  { when: '2024', role: 'Data Science Intern', org: 'Oasis Infobyte (Remote)', body: 'Trained and benchmarked Random Forest, Regression and SVM models reaching 94 to 97 percent accuracy on multi-domain tasks.' },
+  { when: '2025 — Now', role: 'Full Stack Developer Intern', org: 'Coastal Seven Consulting', body: 'GraphQL APIs with Strawberry and FastAPI, Google OAuth and Drive integration, and podcast-publishing automation that cut manual work by 95 percent.' },
+  { when: '2023 — 2025', role: 'Research Assistant', org: 'Dept. of IT, ANITS', body: 'Built NoveltyNet and RAG document pipelines, improved minority-class F1 by 15 percent, and taught ML and DL labs to 150-plus students.' },
+  { when: '2024', role: 'Data Science Intern', org: 'Oasis Infobyte', body: 'Trained and benchmarked Random Forest, Regression and SVM models reaching 94 to 97 percent accuracy on multi-domain tasks.' },
 ];
 const SKILLS = ['Python', 'PyTorch', 'TensorFlow', 'FastAPI', 'React', 'Django', 'LangChain', 'LiveKit', 'RAG', 'NLP', 'SBERT', 'FAISS', 'Docker', 'PostgreSQL', 'GraphQL'];
 
@@ -164,109 +154,127 @@ const App: React.FC = () => {
   const orbAction = isConnected ? disconnectRoom : startConversation;
   const liveCaptions = captions.filter(c => c.text.trim());
 
-  const Portrait = ({ cls }: { cls: string }) =>
-    photoOk ? <img src="/founder.jpg" alt={NAME} className={cls} onError={() => setPhotoOk(false)} />
-            : <span className={`${cls} portrait-fallback`}>CK</span>;
-
   return (
-    <div className="site">
-      <div className="bg-aura" aria-hidden />
-      <div className="bg-mesh" aria-hidden />
+    <div className="page">
+      <div className="grain" aria-hidden />
 
-      {/* ---- nav ---- */}
-      <header className="nav">
-        <a className="brand" href="#top"><img src="/founder-mark.svg" alt="" /><span>Chandra Sekhar <b>Karri</b></span></a>
-        <nav className="nav-links">
-          <a href="#about">About</a><a href="#work">Work</a><a href="#path">Experience</a><a href="#contact">Contact</a>
-        </nav>
-        <button className="nav-cta" onClick={() => openAI('voice')}><Sparkles size={15} /> Talk to my AI</button>
-      </header>
+      <div className="wrap">
+        <header className="nav">
+          <a className="brand" href="#top">{NAME}</a>
+          <nav>
+            <a href="#work">Work</a>
+            <a href="#about">About</a>
+            <button className="nav-ai" onClick={() => openAI('voice')}>Talk to my AI <Sparkles size={13} /></button>
+          </nav>
+        </header>
 
-      <main id="top">
-        {/* ---- hero ---- */}
-        <section className="hero">
-          <div className="hero-left">
-            <div className="eyebrow"><span className="dot" /> {ROLE}</div>
-            <h1>Hi, I&rsquo;m <span className="grad">Chandra</span>.<br />I build intelligent systems.</h1>
-            <p>Research-focused AI engineer specializing in novelty detection, retrieval-augmented generation and NLP, with published research and production engineering experience.</p>
-            <div className="hero-meta"><MapPin size={14} /> Visakhapatnam, India</div>
-            <div className="hero-cta">
-              <button className="btn-primary" onClick={() => openAI('voice')}><Mic size={16} /> Talk to my AI</button>
-              <button className="btn-ghost" onClick={() => openAI('chat')}>Ask about me <ArrowRight size={15} /></button>
-              <a className="btn-ghost" href="https://github.com/chandu3292" target="_blank" rel="noreferrer"><Github size={15} /> GitHub</a>
-            </div>
-            <div className="facts">{FACTS.map(f => <div key={f.v} className="fact"><span className="fact-k">{f.k}</span><span className="fact-v">{f.v}</span></div>)}</div>
-          </div>
-          <div className="hero-right">
-            <div className="portrait-wrap">
-              <span className="portrait-glow" aria-hidden />
-              <Portrait cls="portrait" />
-              <button className="portrait-badge" onClick={() => openAI('voice')}><Sparkles size={13} /> Talk to my AI</button>
-            </div>
-          </div>
-        </section>
-
-        {/* ---- about ---- */}
-        <section className="about" id="about">
-          <img src="/research-graph.svg" className="about-bg" alt="" aria-hidden />
-          <span className="kicker">About</span>
-          <h2>An engineer who ships, and a researcher who measures.</h2>
-          <p>I work across the full stack of intelligent systems, from designing and evaluating ML and DL architectures to building real-time, production-grade products. My research focuses on novelty detection, retrieval-augmented generation and NLP, grounded in careful experimental design and reproducible evaluation.</p>
-          <div className="about-cards">
-            <div className="ac"><GraduationCap size={18} /><h4>Education</h4><p>B.Tech, Information Technology, ANITS. Expected 2026. CGPA 8.98 / 10.</p></div>
-            <div className="ac"><BookOpen size={18} /><h4>Publication</h4><p>Deep Learning and Generative AI for Drug Discovery, IRPJR 2025 (in press).</p></div>
-          </div>
-        </section>
-
-        {/* ---- work ---- */}
-        <section className="work" id="work">
-          <span className="kicker">Selected work</span>
-          <h2>Things I&rsquo;ve built.</h2>
-          <div className="work-grid">
-            {PROJECTS.map(({ Icon, tag, title, body }) => (
-              <article className="card" key={title}>
-                <div className="card-ic"><Icon size={18} /></div>
-                <span className="card-tag">{tag}</span>
-                <h3>{title}</h3>
-                <p>{body}</p>
-              </article>
-            ))}
-          </div>
-        </section>
-
-        {/* ---- experience ---- */}
-        <section className="path" id="path">
-          <span className="kicker">Experience</span>
-          <h2>Where I&rsquo;ve worked.</h2>
-          <div className="timeline">
-            {EXPERIENCE.map(e => (
-              <div className="tl-item" key={e.role + e.when}>
-                <div className="tl-when">{e.when}</div>
-                <div className="tl-body"><h3>{e.role}</h3><span className="tl-org">{e.org}</span><p>{e.body}</p></div>
+        <main id="top">
+          {/* ---- intro ---- */}
+          <section className="intro">
+            <div className="intro-head">
+              {photoOk
+                ? <img src="/founder.jpg" alt={NAME} className="avatar" onError={() => setPhotoOk(false)} />
+                : <span className="avatar avatar-fb">CK</span>}
+              <div>
+                <div className="role"><span className="status-dot" /> AI Engineer &amp; Researcher · Visakhapatnam, India</div>
+                <p className="name-line">{NAME}</p>
               </div>
-            ))}
-          </div>
-          <div className="skills">{SKILLS.map(s => <span key={s} className="skill">{s}</span>)}</div>
-        </section>
+            </div>
+            <h1>I design and build<br /><span className="em">intelligent systems</span>.</h1>
+            <p className="lede">
+              Research-focused AI engineer working on novelty detection, retrieval-augmented
+              generation and NLP, with published research and production engineering experience.
+            </p>
+            <div className="intro-links">
+              <button className="link-primary" onClick={() => openAI('voice')}><Mic size={15} /> Talk to my AI</button>
+              <a className="link-u" href="mailto:karrichandu03@gmail.com">Email <ArrowUpRight size={13} /></a>
+              <a className="link-u" href="https://github.com/chandu3292" target="_blank" rel="noreferrer">GitHub <ArrowUpRight size={13} /></a>
+            </div>
+          </section>
 
-        {/* ---- contact ---- */}
-        <footer className="contact" id="contact">
-          <span className="kicker">Get in touch</span>
-          <h2>Let&rsquo;s talk.<br />Or just <span className="grad">ask my AI</span>.</h2>
-          <div className="contact-grid">
-            <a href="mailto:karrichandu03@gmail.com"><Mail size={16} /> karrichandu03@gmail.com</a>
-            <a href="tel:+919390694802"><Phone size={16} /> +91 93906 94802</a>
-            <a href="https://github.com/chandu3292" target="_blank" rel="noreferrer"><Github size={16} /> github.com/chandu3292</a>
-            <button onClick={() => openAI('voice')}><Sparkles size={16} /> Book a meeting via my AI</button>
-          </div>
-          <div className="foot-bottom"><span>© 2026 {NAME}</span><span className="muted">AI voice portfolio · built with LiveKit</span></div>
-        </footer>
-      </main>
+          {/* ---- about ---- */}
+          <section className="block" id="about">
+            <div className="block-label"><span>01</span> About</div>
+            <div className="block-body">
+              <p className="prose">
+                I work across the full stack of intelligent systems, from designing and evaluating
+                ML and DL architectures to shipping real-time, production-grade products. My research
+                centres on novelty detection, retrieval-augmented generation and NLP, grounded in
+                careful experimental design and reproducible evaluation.
+              </p>
+              <dl className="meta">
+                <div><dt>Education</dt><dd>B.Tech, Information Technology, ANITS · 2026 · CGPA 8.98 / 10</dd></div>
+                <div><dt>Publication</dt><dd>Deep Learning &amp; Generative AI for Drug Discovery, IRPJR 2025 (in press)</dd></div>
+              </dl>
+            </div>
+          </section>
+
+          {/* ---- work ---- */}
+          <section className="block" id="work">
+            <div className="block-label"><span>02</span> Selected Work</div>
+            <div className="block-body">
+              <ul className="proj-list">
+                {PROJECTS.map(p => (
+                  <li className="proj" key={p.title}>
+                    <span className="proj-no">{p.no}</span>
+                    <div className="proj-main">
+                      <div className="proj-top"><h3>{p.title}</h3><span className="proj-tag">{p.tag}</span></div>
+                      <p>{p.body}</p>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </section>
+
+          {/* ---- experience ---- */}
+          <section className="block" id="exp">
+            <div className="block-label"><span>03</span> Experience</div>
+            <div className="block-body">
+              <ul className="exp-list">
+                {EXPERIENCE.map(e => (
+                  <li className="exp" key={e.role}>
+                    <span className="exp-when">{e.when}</span>
+                    <div className="exp-main">
+                      <h3>{e.role} <span className="exp-org">— {e.org}</span></h3>
+                      <p>{e.body}</p>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </section>
+
+          {/* ---- skills ---- */}
+          <section className="block" id="skills">
+            <div className="block-label"><span>04</span> Toolkit</div>
+            <div className="block-body">
+              <ul className="skills">{SKILLS.map(s => <li key={s}>{s}</li>)}</ul>
+            </div>
+          </section>
+
+          {/* ---- contact ---- */}
+          <footer className="contact" id="contact">
+            <div className="block-label"><span>05</span> Contact</div>
+            <div className="block-body">
+              <h2>Let&rsquo;s work together.</h2>
+              <p className="prose">Have a role, a project, or a question? Reach out, or just ask my AI assistant, it can answer and book a meeting with me.</p>
+              <div className="contact-links">
+                <a href="mailto:karrichandu03@gmail.com">karrichandu03@gmail.com <ArrowUpRight size={14} /></a>
+                <a href="tel:+919390694802">+91 93906 94802 <ArrowUpRight size={14} /></a>
+                <a href="https://github.com/chandu3292" target="_blank" rel="noreferrer">github.com/chandu3292 <ArrowUpRight size={14} /></a>
+                <button onClick={() => openAI('voice')}>Talk to my AI <Sparkles size={14} /></button>
+              </div>
+              <div className="sig">© 2026 {NAME}</div>
+            </div>
+          </footer>
+        </main>
+      </div>
 
       {/* ---- floating AI launcher ---- */}
       {!aiOpen && (
         <button className="ai-launch" onClick={() => openAI('voice')} aria-label="Talk to my AI">
-          <Sparkles size={20} /><span>Talk to my AI</span>
+          <Sparkles size={18} /><span>Talk to my AI</span>
         </button>
       )}
 
@@ -275,7 +283,7 @@ const App: React.FC = () => {
         <div className="ai-overlay" onClick={closeAI}>
           <div className="ai-modal" onClick={e => e.stopPropagation()}>
             <div className="ai-head">
-              <div className="ai-title"><Sparkles size={15} /> Chandra&rsquo;s AI</div>
+              <div className="ai-title"><Sparkles size={14} /> Chandra&rsquo;s AI</div>
               <div className="ai-tools">
                 <div className="ai-modes">
                   <button className={aiMode === 'voice' ? 'on' : ''} onClick={() => setAiMode('voice')}>Voice</button>
@@ -294,12 +302,12 @@ const App: React.FC = () => {
                   <span className="orb-glow" aria-hidden />
                   <span className="orb-ring r1" aria-hidden /><span className="orb-ring r2" aria-hidden /><span className="orb-ring r3" aria-hidden />
                   <button className="orb" onClick={orbAction} disabled={isConnecting}>
-                    <span className="orb-face">{isConnecting ? <Loader2 className="spin" size={32} /> : isConnected ? <PhoneOff size={30} /> : <Mic size={34} />}</span>
+                    <span className="orb-face">{isConnecting ? <Loader2 className="spin" size={30} /> : isConnected ? <PhoneOff size={28} /> : <Mic size={32} />}</span>
                   </button>
                   {isConnected && <div className="wave" aria-hidden>{Array.from({ length: 11 }).map((_, i) => <span key={i} style={{ '--n': i } as React.CSSProperties} />)}</div>}
                 </div>
                 <div className="ai-status">{isConnected ? 'Listening…' : status}</div>
-                {isConnected && <div className="timer">{formatTime(timer)}</div>}
+                {isConnected && <div className="ai-timer">{formatTime(timer)}</div>}
                 {isConnected && liveCaptions.length > 0 && (
                   <div className="captions">{liveCaptions.map(c => (
                     <div key={c.id} className={`cap ${c.role} ${c.final ? '' : 'interim'}`}><span className="cap-who">{c.role === 'you' ? 'You' : 'AI'}</span><span className="cap-txt">{c.text}</span></div>

@@ -40,10 +40,11 @@ SYSTEM = (
     "projects, skills and experience using the profile below. If a visitor wants to connect or hire him, offer "
     "to book a meeting. If something is not in the profile, say you are not sure and suggest booking a quick call. "
     "You can check real availability and book meetings yourself using your tools, so never say you cannot access "
-    "the calendar. To book: ask for a preferred date, call check_and_book_appointment to get the real slots, present "
-    "ONLY the starting times, then collect the visitor's name and email and call schedule_appointment. When calling "
-    "schedule_appointment, pass the agreed time as a clear phrase like 'tomorrow 10 AM'. If the visitor "
-    "gives only a time with no date, assume tomorrow. Briefly acknowledge before calling a tool. "
+    "the calendar. To book: ask for a preferred date, call check_and_book_appointment to get the real slots (each slot "
+    "includes a 'Start ISO' value), present ONLY the starting times to the visitor, then collect their name and email. "
+    "The phone number is optional, never insist on it. To finalize, call schedule_appointment and pass the exact "
+    "'Start ISO' value of the chosen slot as start_time_iso. If the visitor gives only a time with no date, assume "
+    "tomorrow. Briefly acknowledge before calling a tool. "
     "Detect the visitor's language and reply in the same language. "
     "Do not use em-dashes (the long dash); use commas or short sentences instead.\n\n"
     f"PROFILE:\n{ABOUT}"
@@ -80,22 +81,25 @@ async def chat(req: ChatMessage):
     user_message = req.message.strip()
     if not user_message:
         return {"status": "error", "message": "Empty message"}
+    # history is a list of types.Content, including any tool-call/response turns,
+    # so the model keeps full context (e.g. the chosen slot's ISO) across turns.
     history = chat_histories.setdefault(req.session_id, [])
-    contents = []
-    for msg in history[-20:]:
-        contents.append({"role": msg["role"], "parts": [{"text": msg["text"]}]})
-    contents.append({"role": "user", "parts": [{"text": user_message}]})
+    history.append(types.Content(role="user", parts=[types.Part(text=user_message)]))
     try:
         cfg = types.GenerateContentConfig(system_instruction=SYSTEM, tools=CHAT_TOOLS)
-        response = google_client.models.generate_content(model=CHAT_MODEL, contents=contents, config=cfg)
-        text = response.text
-        history.append({"role": "user", "text": user_message})
-        history.append({"role": "model", "text": text})
-        if len(history) > 100:
-            chat_histories[req.session_id] = history[-60:]
+        response = google_client.models.generate_content(model=CHAT_MODEL, contents=history, config=cfg)
+        text = response.text or "Sorry, could you say that another way?"
+        # rebuild history with the tool turns the SDK added + the final model reply
+        afc = getattr(response, "automatic_function_calling_history", None)
+        new_hist = list(afc) if afc else list(history)
+        if response.candidates and response.candidates[0].content:
+            new_hist.append(response.candidates[0].content)
+        chat_histories[req.session_id] = new_hist[-40:]
         return {"status": "success", "response": text}
     except Exception as e:
         logger.error(f"Chat error: {e}")
+        if history and getattr(history[-1], "role", None) == "user":
+            history.pop()
         return {"status": "error", "message": str(e)}
 
 
