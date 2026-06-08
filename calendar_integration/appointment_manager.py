@@ -352,7 +352,11 @@ Appointment ID: {appointment_id}
                 appointment["calendar_event_id"] = event.get("id")
                 appointment["calendar_link"] = event.get("htmlLink")
                 logger.info(f"✅ Calendar event created: {event.get('id')}")
-        
+            else:
+                # Calendar write failed - do NOT report a false success
+                logger.error("❌ Calendar event creation failed; reporting booking failure")
+                return {"success": False, "error": "The calendar connection is not working, so the meeting could not be saved. Please try again later."}
+
         logger.info(f"✅ Appointment created: {appointment_id}")
         return {"success": True, "appointment": appointment}
     
